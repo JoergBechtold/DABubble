@@ -25,6 +25,13 @@
         $gap: 10px);
 }
 
+.btn-transparent {
+    @include buttonStyle($btn-bg-color: unset,
+        $hover-bg-color: $bg-color,
+        $text-color: $black,
+        $hover-text-color: $purple-3);
+}
+
 .btn-google {
     @include btnGoogleStyle();
 }
