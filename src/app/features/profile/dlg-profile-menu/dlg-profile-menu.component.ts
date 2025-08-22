@@ -13,6 +13,9 @@ export class DlgProfileMenuComponent {
   auth = inject(AuthService);
   router = inject(Router); 
 
+  /**
+   * Sign out the current user and navigate back to the login page.
+   */
   async signOut() {
     await this.auth.signOut();
     await firstValueFrom(this.auth.user$.pipe(

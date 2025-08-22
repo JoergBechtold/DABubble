@@ -19,15 +19,15 @@ export class ProfileMenuComponent {
   facade = inject(UsersFacadeService);
   auth = inject(AuthService);
   router = inject(Router);
+  overlay = inject(Overlay);
   @ViewChild(CdkPortal) portal!: CdkPortal;
   
   readonly user = toSignal(this.facade.currentUser(), { initialValue: null });
 
-  constructor(private overlay: Overlay) {
-
-  }
-
-  openModal() {
+  /**
+   * Opens the profile menu overlay.
+   */
+  openProfileMenu() {
     const config = new OverlayConfig({
       positionStrategy: this.overlay.position().global().right("16px").top("120px"),
       hasBackdrop: true
