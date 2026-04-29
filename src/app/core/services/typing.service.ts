@@ -1,12 +1,26 @@
-import { Injectable, inject } from '@angular/core';
-import { Firestore, doc, setDoc, deleteDoc, collection, query, collectionData } from '@angular/fire/firestore';
+import {
+  Injectable,
+  inject,
+  EnvironmentInjector,
+  runInInjectionContext,
+} from '@angular/core';
+import {
+  Firestore,
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  query,
+  collectionData,
+} from '@angular/fire/firestore';
 import { Observable, map } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TypingService {
   private fs = inject(Firestore);
+  private env = inject(EnvironmentInjector);
   private readonly TYPING_COLLECTION = 'typing';
   private typingTimeouts = new Map<string, any>();
 
@@ -17,7 +31,7 @@ export class TypingService {
     const typingRef = doc(this.fs, this.TYPING_COLLECTION, userId);
     await setDoc(typingRef, {
       userId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     if (this.typingTimeouts.has(userId)) {
@@ -55,12 +69,14 @@ export class TypingService {
     const typingCollection = collection(this.fs, this.TYPING_COLLECTION);
     const typingQuery = query(typingCollection);
 
-    return collectionData(typingQuery, { idField: 'id' }).pipe(
+    return runInInjectionContext(this.env, () =>
+      collectionData(typingQuery, { idField: 'id' }),
+    ).pipe(
       map((docs: any[]) => {
         const now = Date.now();
-        const validUsers = docs.filter(doc => (now - doc.timestamp) < 5000);
-        return new Set(validUsers.map(doc => doc.userId));
-      })
+        const validUsers = docs.filter((doc) => now - doc.timestamp < 5000);
+        return new Set(validUsers.map((doc) => doc.userId));
+      }),
     );
   }
 
@@ -69,7 +85,7 @@ export class TypingService {
    */
   isUserTyping$(userId: string): Observable<boolean> {
     return this.getTypingUsers$().pipe(
-      map(typingUsers => typingUsers.has(userId))
+      map((typingUsers) => typingUsers.has(userId)),
     );
   }
 }
